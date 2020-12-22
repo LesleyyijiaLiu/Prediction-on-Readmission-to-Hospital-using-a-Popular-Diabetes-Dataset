@@ -3,9 +3,14 @@ This repository contains code and data for Prediction on Readmission to Hospital
 
 The section of this repo is: content.
 
-It contains the dataset we used, the report and supporting material:
+It contains the dataset we used, the report and supporting material.
 
-- diabetes.csv
-- Final-Project---Prediction-on-Readmission-to-Hospital-using-a-Popular-Diabetes-Dataset.pdf
-- Final-Project---Prediction-on-Readmission-to-Hospital-using-a-Popular-Diabetes-Dataset.rmd
-- reference.bib
+Dataset:
+ `diabetes.csv`
+
+Report: 
+ `Final-Project---Prediction-on-Readmission-to-Hospital-using-a-Popular-Diabetes-Dataset.pdf`
+ `Final-Project---Prediction-on-Readmission-to-Hospital-using-a-Popular-Diabetes-Dataset.rmd`
+
+Bibliography:
+ `reference.bib`
