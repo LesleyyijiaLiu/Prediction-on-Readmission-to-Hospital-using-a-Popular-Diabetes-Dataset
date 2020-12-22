@@ -11,7 +11,7 @@ output:
     df_print: paged
 biblio-style: alphadin
 link-citations: true
-abstract: "It is important to know if a diabetes patient will be readmitted in some hospital. The reason is that you can change the treatment, in order to avoid a readmission. We apply Generalized linear model(GLM) [@nelder1972generalized], Generalized Linear Mixed Models (GLMMs) [@mcculloch2014generalized] and Backward Selection [@hocking1976biometrics] to select variables and decide the finalized model. Finally, 10 variables are found to help predict readmission rate and the prediction accuracy is around 0.88, which is an accept result. \\par
+abstract: "It is important to know if a diabetes patient will be readmitted to some hospital. The reason is that you can change the treatment, in order to avoid a readmission. We will apply Generalized linear model(GLM) [@nelder1972generalized], Generalized Linear Mixed Models (GLMMs) [@mcculloch2014generalized] and Backward Selection [@hocking1976biometrics] to select variables and decide the finalized model. Finally, 10 variables are found to help predict readmission rate and the prediction accuracy is around 0.88, which is an accepted result. \\par
  \\textbf{Keywords:} Diabetes, Readmission, GLM, AIC, BIC \\par
  \\textbf{Data:} https://archive.ics.uci.edu/ml/datasets/Diabetes+130-US+hospitals+for+years+1999-2008 \\par
  \\textbf{Github:} https://github.com/LesleyyijiaLiu/Prediction-on-Readmission-to-Hospital-using-a-Popular-Diabetes-Dataset.git"
@@ -24,7 +24,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # install packages
-
 library(MASS) 
 library(car) 
 library(lmtest) 
@@ -35,35 +34,35 @@ library(qqtest)
 
 ```
 
-
 # 1. Introduction
 
-Diabetes is a life long condition where your body does not produce enough insulin or your body cannot use the insulin it has effectively. It can increase the risk of high blood pressure, narrowing of the arteries (atherosclerosis), coronary artery disease and stroke.[@diabetes2019] Thus, it is important to identify the patients with worse outcomes.
-In general, it is hard to measure directly. However, readmission can provide a low cost, stable estimate. If the readmission are none, which means the treatment is great; else if the readmission are less than 30 days, which means the treatment may not be appropriate; else if the readmission are more than 30 days, which means the treatment is not very good, but the reason could be the patients.
+Diabetes is a lifelong condition where your body does not produce enough insulin or your body cannot use the insulin it has effectively. It can increase the risk of high blood pressure, narrowing of the arteries (atherosclerosis), coronary artery disease and stroke [@diabetes2019]. Thus, it is important to identify patients with worse outcomes.
 
-In this project, we would like to make prediction on 'readmission' using the variables from the dataset. Firstly, we recombine 'readmission' to a binary variable and apply 'GLM' model to find a linear relationship. Secondly, variable selection is applied to find more efficient variables. Thirdly, we construct a better model with conditioning on 'patient_nbr'. Finally, model validation and prediction testing are made to make the project more convincing.
+In general, it is hard to measure directly. However, readmission can provide a low cost, stable estimate. If the readmission is none, which means the treatment is great; if the readmission is less than 30 days, which means the treatment may not be appropriate; if the readmission is more than 30 days, which means the treatment is not very good, but the reason could be the patients.
 
-The structure of this project is: we simply describe the data and explain the variables firstly, and then give an introduction of our model. After that, the procedures of getting our final model will be provided. In the end, we will talk about the prediction results and discussion parts.
+In this project, we would like to predict 'readmission' using the variables from the dataset [@datasource]. Firstly, we recombine 'readmission' to a binary variable and apply the 'GLM' model to find a linear relationship. Secondly, variable selection is applied to find more efficient variables. Thirdly, we construct a better model with conditioning on 'patient_nbr'. Finally, model validation and prediction testing are made to make the project more convincing.
+
+The structure of this project is: we simply describe the data and explain the variables firstly section, and then give an introduction to our model. After that, the procedures for getting our final model will be provided. In the end, we will talk about the prediction results and discussion parts.
+
+Our report is built using `R` [@citeR], with packages `MASS` [@citeMASS], `car` [@citecar], `lmtest` [@citelmtest], `lme4` [@citelme4], `tidyverse` [@citetidyverse], `magrittr` [@citemagrittr], `qqtest` [@citeqqtest], `dplyr` [@citedplyr], `GGally` [@citeGGally], and `pROC` [@citepROC].
 
 # 2. Data
 
 ## 2.1. Source of the Data
 
-The data set represents 10 years (1999-2008) of clinical care at 130 US hospitals and integrated delivery networks. We find this data set from Kaggle but the raw data are submitted on behalf of the Center for Clinical and Transnational Research, Virginia Commonwealth University, a recipient of NIH CTSA grant UL1 TR00058 and a recipient of the CERNER data. John Clore, Krzysztof J. Cios, Jon DeShazo, and Beata Strack. This data is a de-identified abstract of the Health Facts database[@datasource].
+The data set represents 10 years (1999-2008) of clinical care at 130 US hospitals and integrated delivery networks. We find this data set from Kaggle but the raw data are submitted on behalf of the Center for Clinical and Translational Research, Virginia Commonwealth University, a recipient of NIH CTSA grant UL1 TR00058 and a recipient of the CERNER data. John Clore, Krzysztof J. Cios, Jon DeShazo, and Beata Strack. This data is a de-identified abstract of the Health Facts database [@datasource].
 
 It includes over 50 features representing patient and hospital outcomes. Information was extracted from the database for encounters that satisfied the following criteria.
 
 - It is an inpatient encounter (a hospital admission). 
-
-- It is a diabetic encounter, that is, one during which any kind of diabetes was entered to the system as a diagnosis. 
-
+- It is a diabetic encounter, that is, one during which any kind of diabetes was entered into the system as a diagnosis. 
 - The length of stay was at least 1 day and at most 14 days. 
-
 - Laboratory tests were performed during the encounter. 
-
 - Medications were administered during the encounter. 
 
-The data contains such attributes as patient number, race, gender, age, admission type, time in hospital, medical specialty of admitting physician, number of lab test performed, HbA1c test result, diagnosis, number of medication, diabetic medications, number of outpatient, inpatient, and emergency visits in the year before the hospitalization, etc.
+The data contains such attributes as the patient number, race, gender, age, admission type, time in the hospital, medical specialty of admitting physician, number of lab test performed, HbA1c test result, diagnosis, number of medication, diabetic medications, number of outpatients, inpatient, and emergency visits in the year before the hospitalization, etc.
+
+\newpage
 
 ## 2.2. Description of the Data
 
@@ -120,14 +119,16 @@ tolbutamide, pioglitazone, rosiglitazone, acarbose, miglitol, troglitazone, tola
 
 To clean the data and keep the most important variables, we will do the following steps:
 
-(1)	To the response variable (readmission), since the distribution is imbalanced (11357 less than 30s, 35545 over 30s and 54864 no), additionally, the distinction of the less than 30 readmission and over 30 readmission is not great, we decide to use two levels that are 'no readmission' and 'readmission'.
-Thus, we transform the response variable 'readmission' to be binary: combine 'less than 30 (total 11357)' and 'over 30 (total 35545)' to '1', which means the patient does have readmission; change 'no' to '0 (54864)', means there is no readmission. This transformation also helps keep the data balanced.
+(1)	For the response variable (readmission), since the distribution is imbalanced (11357 less than the 30s, 35545 over 30s and 54864 no), additionally, the distinction of the less than 30 readmission and over 30 readmission is not great, we decide to use two levels that are 'no readmission' and 'readmission'.
+Thus, we transform the response variable 'readmission' to be binary: combine 'less than 30 (total 11357)' and 'over 30 (total 35545)' to '1', which means the patient does have readmission; change 'no' to '0 (54864)', which means there is no readmission. This transformation also helps to keep the data balanced.
 
-(2)	Remove some seriously imbalanced or NA variables: Since for 'weights', 'payer_code' and 'medical_specialty' contain almost all NAs, we will remove them. Also, 'examide', 'metformin_rosiglitazone' and 'citoglipton' are removed due to the seriously imbalanced.
+(2)	Remove some seriously imbalanced or NA variables: Since 'weights', 'payer_code' and 'medical_specialty' contain almost all NAs, we will remove them. Also, 'examide', 'metformin_rosiglitazone' and 'citoglipton' are removed due to the seriously imbalanced.
 
-(3)	Remove other rows which contains NAs.
+(3)	Remove other rows that contain NAs.
 
-(4)	Correlation Matrix: For all rest numerical variables, we can construct the correlation matrix as following(Figure 1):
+\newpage
+
+(4)	Correlation Matrix: For all rest numerical variables, we can construct the correlation matrix as following (Figure 1):
 
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
@@ -142,6 +143,7 @@ df = read.csv("diabetes.csv")
 # boxplot(df)
 
 library("dplyr")
+
 # correlation coefficient matrix
 df_noclass = select_if(df, is.numeric)
 df.cor = cor(df_noclass, method = c("spearman"))
@@ -158,13 +160,11 @@ df_noclass %>%
 
 ```
 
-From the figure above, we can find 'num_medications' has relatively strong relationship with several variables and 'number_inpatient' has strong relationship with 'encounter_num'.
+From the figure above, we can find 'num_medications' has a relatively strong relationship with several variables and 'number_inpatient' has a strong relationship with 'encounter_num'.
 
 # 3. Models
 
 ## 3.1. Introduction to Models
-
-Our model is built using `R` [@citeR], with packages `MASS` [@citeMASS], `car` [@citecar], `lmtest` [@citelmtest], `lme4` [@citelme4], `tidyverse` [@citetidyverse], `magrittr` [@citemagrittr], and `qqtest` [@citeqqtest].
 
 ### Model1: GLM with Binomial Response
 
@@ -180,6 +180,7 @@ $$
 
 to express. We further assume that the $Y_{i}$ are independent. The individual trials that
 compose $Y_{i}$ are subject to the same $q$ predictors $\left(x_{i 1}, \ldots, x_{i q}\right)$
+
 As in the binary case, we construct a linear predictor
 
 $$
@@ -202,21 +203,23 @@ $$
 
 ### Model2: Generalized linear Mixed Models (GLMMs)
 
-After considering random effects, we can use generalized linear mixed models. The interpretation of GLMMs is similar to GLMs; however, there is an added complexity because of the random effects. On the linear metric (after taking the link function), interpretation continues as usual. However, it is often easier to back transform the results to the original metric. For example, in a random effects logistic model, one might want to talk about the probability of an event given some specific values of the predictors. Likewise in a Poisson (count) model, one might want to talk about the expected count rather than the expected log count. These transformations complicate matters because they are nonlinear and so even random intercepts no longer play a strictly additive role and instead can have a multiplicative effect. When the response follows an exponential family distribution, 
+After considering random effects, we can use generalized linear mixed models. The interpretation of GLMMs is similar to GLMs; however, there is an added complexity because of the random effects. On the linear metric (after taking the link function), interpretation continues as usual. However, it is often easier to back transform the results to the original metric. For example, in a random-effects logistic model, one might want to talk about the probability of an event given some specific values of the predictors. Likewise in a Poisson (count) model, one might want to talk about the expected count rather than the expected log count. These transformations complicate matters because they are nonlinear and so even random intercepts no longer play a strictly additive role and instead can have a multiplicative effect. When the response follows an exponential family distribution, 
 
 $$
 f\left(y_{i} \mid \theta_{i}, \phi\right)=\exp \left\{\frac{y_{i} \theta_{i}-b\left(\theta_{i}\right)}{a(\phi)}+c(y, \phi)\right\}
 $$
-Let $\mathbb{E}\left(Y_{i}\right)=\mu_{i}$ and we connect it to the linear predictor $\eta_{i}$ using the link function $g$ by $\eta_{i}=g\left(\mu_{i}\right)$. If the random effect $\gamma$ have distribution $h(\gamma \mid V)$ for parameters
+Let $\mathbb{E}\left(Y_{i}\right)=\mu_{i}$ and we connect it to the linear predictor $\eta_{i}$ using the link function $g$ by $\eta_{i}=g\left(\mu_{i}\right)$. If the random effect $\gamma$ has distribution $h(\gamma \mid V)$ for parameters
 V. The fixed effects are $\beta$. Condition on the random effects $\gamma$, we have $\theta_{i}=x_{i}^{\top}+$ $z_{i}^{\top} \gamma .$ Then the likelihood function is
 $$
 L(\beta, \phi, V \mid y)=\prod_{i=1}^{n} \int f\left(y_{i} \mid \beta, \phi, \gamma\right) h(\gamma \mid V) d \gamma
 $$
 Where $\gamma \sim N(0, D)$
 
+\newpage
+
 ## 3.2. Variable Selection
 
-Some variables in original model are redundant or there exist Multicollinearity. So I can develop some variable selection method:
+Some variables in the original model are redundant or there exists Multicollinearity. So we need to develop some variable selection method:
 
 ### (a) AIC and BIC Criterion:
 
@@ -226,7 +229,7 @@ for the model. Then the AIC value of the model is the following.
 $$
 \mathrm{AIC}=2 k-2 \ln (L)
 $$
-The formula for (BIC) is similar to the formula for AIC, but with a different penalty for the number of parameters.
+The formula for BIC is similar to the formula for AIC, but with a different penalty for the number of parameters.
 $$
 \mathrm{BIC}=\ln (n) k-2 \ln (\mathrm{L})
 $$
@@ -235,53 +238,56 @@ $$
 
 Stepwise regression is a method of fitting regression models in which the choice of predictive variables is carried out by an automatic procedure. 
 
-- Forward selection: Forward selection is a type of stepwise regression which begins with an empty model and adds in variables one by one. 
+- Forward selection: Forward selection is a type of stepwise regression that begins with an empty model and adds in variables one by one. 
 
-- Backward selection: The backward selection model starts with all candidate variables in the model. At each step, the variable that is the least significant is removed. We applied backward selection model in my project.
+- Backward selection: The backward selection model starts with all candidate variables in the model. At each step, the variable that is the least significant is removed. We applied the backward selection model in this project.
 
 ## 3.3. Process of Obtaining Final Model
 
-- (a) Split the data to train set and test set: I create a test dataset that contains a random selection of 20000 patients by using 'patient nbr' variable. The rest are set as train set.
+(1) Split the data to train set and test set: I create a test dataset that contains a random selection of 20000 patients by using the 'patient_nbr' variable. The rest are set as a train set.
 
-- (b) Remove other variables which cannot be used as covariates: I continue to remove "encounter id", "patient nbr", "admission source id", "encounter num" before fitting models.
+(2) Remove other variables that cannot be used as covariates: I continue to remove "encounter_id", "patient_nbr", "admission_source_ _id", "encounter_num" before fitting models.
 
-- (c) Fitting GLM with Binomial Response: since the response variable "readmitted" is a binary variable, we can let $Y_{i} \sim$ Bernoulli $\left(\pi_{i}\right),$ where $\pi_{i}$ is the probability of readmission. And then we fit a GLM as $\operatorname{logit}\left(\pi_{i}\right)=$ $X_{i} \beta+e_{i},$ where $e_{i} \sim N\left(0, \sigma^{2}\right)$
+\newpage
 
-The fitted formula for model1 is: 
+(3) Fitting GLM with Binomial Response: since the response variable "readmitted" is a binary variable, we can let $Y_{i} \sim$ Bernoulli $\left(\pi_{i}\right),$ where $\pi_{i}$ is the probability of readmission. And then we fit a GLM as $\operatorname{logit}\left(\pi_{i}\right)=$ $X_{i} \beta+e_{i},$ where $e_{i} \sim N\left(0, \sigma^{2}\right)$
 
-formula $=$ readmitted $\sim$ race $+$ gender $+$ age $+$ num lab procedures $+$ num procedures + num medications + number outpatient $+$ number emergency + number inpatient + number diagnoses $+$ max glu serum $+$ A1Cresult $+$ metformin $+$ glipizide $+$ pioglitazone $+$ rosiglitazone $+$ acarbose $+$ insulin $+$ change $+$ diabetesMed $+$ Length.of.Stay (totally 21 variables)
+- The fitted formula for model1 is: 
 
-- (d) Backward Stepwise Selection: From the regression results above, I find half of the covariates are not significant. So I decide to use backward stepwise selection method to find more proper and simpler model but with reasonable explanation.
+formula $=$ readmitted $\sim$ race $+$ gender $+$ age $+$ num_lab_procedures $+$ num_procedures + num_medications + number_outpatient $+$ number_emergency + number_inpatient + number_diagnoses $+$ max_glu_serum $+$ A1Cresult $+$ metformin $+$ glipizide $+$ pioglitazone $+$ rosiglitazone $+$ acarbose $+$ insulin $+$ change $+$ diabetesMed $+$ Length.of.Stay (totally 21 variables)
 
-The final result is: 
+(4) Backward Stepwise Selection: From the regression results above, I find half of the covariates are not significant. So I decide to use the backward stepwise selection method to find a more proper and simpler model but with a reasonable explanation.
 
-readmitted $\sim$ race $+$ gender $+$ age $+$ num lab procedures $+$ num procedures + number outpatient + number emergency $+$ number inpatient + number diagnoses + max glu serum + A1Cresult + metformin $+$ glipizide $+$ rosiglitazone $+$ acarbose $+$ insulin $+$ diabetesMed + Length.of.Stay (totally 18 variables)
+- The final result is: 
 
-- (e) $\quad$ Generalized linear Mixed Model: After selecting variables using Stepwise, we still find some of the variables that are not significant. Since one patient may have more than once encounters, the generalized linear mixed model condition on "patient nar" maybe a better choice. We can let $Y_{i j} \mid U_{i} \sim$ Bernoulli $\left(\pi_{i t}\right)$ where $\pi_{i t}$ is the probability of readmission. And then we fit a GLMM as logit $\left(\pi_{i t}\right)=X_{i t} \beta+U_{i}$ 
+readmitted $\sim$ race $+$ gender $+$ age $+$ num_lab_procedures $+$ num_procedures + number_outpatient + number_emergency $+$ number_inpatient + number_diagnoses + max_glu_serum + A1Cresult + metformin $+$ glipizide $+$ rosiglitazone $+$ acarbose $+$ insulin $+$ diabetesMed + Length.of.Stay (totally 18 variables)
 
-The fitted formula for model 1 is: 
+(5) Generalized Linear Mixed Model: After selecting variables using Stepwise, we still find some of the variables that are not significant. Since one patient may have more than one encounter, the generalized linear mixed model condition on "patient_nar" maybe a better choice. We can let $Y_{i j} \mid U_{i} \sim$ Bernoulli $\left(\pi_{i t}\right)$ where $\pi_{i t}$ is the probability of readmission. And then we fit a GLMM as logit $\left(\pi_{i t}\right)=X_{i t} \beta+U_{i}$ 
 
-Formula: readmitted $\sim(1 \mid$ patient $\mathrm{nbr})+$ race $+$ gender $+$ age $+$ num lab procedures + num procedures + number outpatient $+$ number emergency + number inpatient + number diagnoses $+$
+- The fitted formula for model 1 is: 
+
+Formula: readmitted $\sim(1 \mid$ patient $\mathrm{nbr})+$ race $+$ gender $+$ age $+$ num_lab_procedures + num_procedures + number_outpatient $+$ number_emergency + number_inpatient + number_diagnoses $+$
 acarbose $+$ insulin $+$ diabetesMed $+$ Length.of.Stay
 
-From the regression results, we continue to remove the variables are not significant, the final model is: 
+- From the regression results, we continue to remove the variables that are not significant, the final model is: 
 
-final formula $=$ readmitted $\sim(1 \mid$ patient $\mathrm{nbr})+$ race $+$ gender $+$ age $+$ num procedures + number outpatient + number emergency $+$ number diagnoses $+$ insulin $+$ diabetesMed $+$ Length.of.Stay
+final formula $=$ readmitted $\sim(1 \mid$ patient $\mathrm{nbr})+$ race $+$ gender $+$ age $+$ num_procedures + number_outpatient + number_emergency $+$ number_diagnoses $+$ insulin $+$ diabetesMed $+$ Length.of.Stay
 
 ## 3.4.	Model Validation/ Dignostics
 
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # read and delete NA variables and useless variables
-
 df = read.csv("diabetes.csv") %>% 
   select(-c(X, weight, payer_code, medical_specialty, examide, citoglipton,
             metformin.rosiglitazone,
             acetohexamide, tolbutamide, troglitazone,
             glipizide.metformin, metformin.pioglitazone,
             glimepiride.pioglitazone)) %>% 
+  
   # remove all NAs
   na.omit() %>% 
+  
   # replace the response readmitted to binary variable
   mutate(
     readmitted = case_when(
@@ -295,15 +301,16 @@ df = read.csv("diabetes.csv") %>%
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # read and delete NA variables and useless variables
-
 df = read.csv("diabetes.csv") %>% 
   select(-c(X, weight, payer_code, medical_specialty, examide, citoglipton,
             metformin.rosiglitazone,
             acetohexamide, tolbutamide, troglitazone,
             glipizide.metformin, metformin.pioglitazone,
             glimepiride.pioglitazone)) %>% 
+  
   # remove all NAs
   na.omit() %>% 
+  
   # replace the response readmitted to binary variable
   mutate(
     readmitted = case_when(
@@ -317,10 +324,10 @@ df = read.csv("diabetes.csv") %>%
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # split data to test set and train set
-
 set.seed(12345)
 unique_patient_id = unique(df$patient_nbr)
 size = length(unique_patient_id) #(total 69668)
+
 # 25% test set(total 16417) and 75% train set
 sample_size = size*0.25
 test_id = sample(unique_patient_id, size = sample_size)
@@ -334,15 +341,11 @@ train_set = df[df$patient_nbr %in% train_id, ] # total 74,476
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # remove other variables which cannot be used as covariates
-
 new_train = subset(train_set, select=-c(encounter_id, patient_nbr, admission_source_id, encounter_num))
 
 # originl model1
-
 formula = readmitted ~ race + gender + age + num_lab_procedures + num_procedures + num_medications + number_outpatient + number_emergency + number_inpatient + number_diagnoses + max_glu_serum + A1Cresult + metformin + glipizide + pioglitazone + rosiglitazone + acarbose + insulin + change + diabetesMed + Length.of.Stay
-
 model = glm(formula, data = new_train, family = binomial)
-
 # summary(model)
 
 ```
@@ -357,11 +360,8 @@ model = glm(formula, data = new_train, family = binomial)
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # After selecting variables, we try new model2
-
 new_formula = readmitted ~ (1 | patient_nbr) + race + gender + age + num_lab_procedures + num_procedures + number_outpatient + number_emergency + number_inpatient + number_diagnoses + max_glu_serum + A1Cresult + metformin + glipizide + rosiglitazone + acarbose + insulin +  diabetesMed + Length.of.Stay
-
 model2 = glmer(new_formula, data = train_set, family = binomial, nAGQ = 0)
-
 # summary(model2)
 
 ```
@@ -369,7 +369,6 @@ model2 = glmer(new_formula, data = train_set, family = binomial, nAGQ = 0)
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # Backward Select Variables for model2
-
 fixmodel <- lm(formula(model2, fixed.only=TRUE),
                data=eval(getCall(model2)$data))
 # step(fixmodel)
@@ -380,24 +379,22 @@ fixmodel <- lm(formula(model2, fixed.only=TRUE),
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # remove more variable according to statistical significance and correlation matrix
-
 final_formula = readmitted ~ (1 | patient_nbr) + race + gender + age + num_procedures + number_outpatient + number_emergency + number_diagnoses + insulin +  diabetesMed + Length.of.Stay
-
 model3 = glmer(final_formula, data = train_set, family = binomial, nAGQ = 0)
-
 # summary(model3)
 
 ```
 
-After selecting variables, we need to check the following assumptions:
+After selecting the variables, we need to check the following assumptions:
 
-- (a)  Normality of residuals(Figure 2); (QQ-plot)
+\newpage
+
+(1) Normality of residuals (Figure 2); (QQ-plot)
 
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # Diagnostics
 # 1. QQ-plot
-
 residual = residuals(model3, "pearson", scaled = TRUE) 
 tibble(residuals = residual) %>% ggplot(aes(sample = residuals)) + stat_qq() + stat_qq_line() + labs(caption = "Figure 2: QQ-Plot")
   
@@ -405,36 +402,36 @@ tibble(residuals = residual) %>% ggplot(aes(sample = residuals)) + stat_qq() + s
 
 From the QQ plot above, we can find most of the points are on the straight line, which means the residuals follow normal distribution approximately.
 
-- (b)  Homoscedasticity(Figure 3); (Fitted Values v.s. Residuals)
+\newpage
+
+(2) Homoscedasticity (Figure 3); (Fitted Values v.s. Residuals)
+
+From the figure below, we can find the points have some trends even if they are on the two sides around zero. Thus, it is not very confident to state the variance is constant, which also means there may not exist homoscedasticity.
 
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # 2. fitted v.s. residuals
-
 diagd = tibble(resid = residuals(model3), fitted = fitted(model3))
 plot2 = diagd %>% ggplot(aes(x=fitted,y=resid)) + geom_point(alpha=0.3) + geom_hline(yintercept=0) + labs(x="Fitted", y="Residuals", caption = 'Figure 3: Fitted v.s. Residuals')
 plot2
 
 ```
 
-From the figure below, we can find the points have some trends even if they are on the two sides around zero. Thus, it is not very confident to state the variance is constant, which also means there may not exist homoscedasticity.
-
 # 4. Results
 
-- (1) Finally, we build the GLMM model condition on "patient nbr", totally 10 covariates, which is: 
+- Finally, we build the GLMM model condition on "patient_nbr", totally of 10 covariates, which is: 
 
-Final Formula $=$ readmitted $\sim(1 \mid$ patient $\mathrm{nbr})+$ race $+$ gender $+$ age $+$ num procedures + number outpatient + number emergency $+$ number diagnoses $+$ insulin $+$ diabetesMed $+$ Length.of.Stay
+Final Formula $=$ readmitted $\sim(1 \mid$ patient $\mathrm{nbr})+$ race $+$ gender $+$ age $+$ num_procedures + number_outpatient + number_emergency $+$ number_diagnoses $+$ insulin $+$ diabetesMed $+$ Length.of.Stay
 
-- (2) After fitting this model on train set, we use it on test set. The AUC is 0.8854 and the $\mathrm{ROC}$ curve is as below (Figure 4). From the accuracy, we can find the predicted results are acceptable and even good. Thus, the model maybe a suitable model for the data.
+\newpage
+
+- After fitting this model on the train set, we use it on the test set. The AUC is 0.8854 and the $\mathrm{ROC}$ curve is as below (Figure 4). 
 
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # predict Accuracy for test set
-
 final_formula = readmitted ~ (1 | patient_nbr) + race + gender + age + num_procedures + number_outpatient + number_emergency + number_diagnoses + insulin +  diabetesMed + Length.of.Stay
-
 model3_test = glmer(final_formula, data = test_set, family = binomial, nAGQ = 0)
-
 # summary(model3_test)
 
 ```
@@ -442,17 +439,15 @@ model3_test = glmer(final_formula, data = test_set, family = binomial, nAGQ = 0)
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
 # Prediction for test set
-
 library(pROC)
 
 # Produce the ROC curve. State the AUC value and interpret.
-
 pred_test = predict(model3_test, type = "response") 
 roc_para_test = roc(test_set$readmitted ~ pred_test) 
 TPR_test = roc_para_test$sensitivities
 FPR_test = 1 - roc_para_test$specificities 
-# plot
 
+# plot
 data.frame(
   FPR = FPR_test, 
   TPR = TPR_test
@@ -468,23 +463,27 @@ data.frame(
 
 ```
 
+From the accuracy, we can find the predicted results are acceptable and even good. Thus, the model may be a suitable model for the data.
+
 # 5. Discussion
 
 ## 5.1. Results Interpretation
 
-The result shows that there are many causes for readmission. The first one is race. If a person is an Asian, he or she is more likely readmitted. The possibility of man readmitted is higher than a woman. Patients who are more than 60 year old but less than 90 years old can be easily readmitted. The higher number of procedures, outpatient , emergency and diagnoses means the higher possibility to get readmitted. The use of insulin is also a crucial reason of readmitted. Moreover, diabetes has positive influence on readmission. In addition, if a patient has already stay long time in hospital, he or she has a greater probability of readmission.
+The result shows that there are many causes for readmission. The first one is the race. If a person is an Asian, he or she is more likely readmitted. The possibility of man a readmitted is higher than a woman. Patients who are more than 60 years old but less than 90 years old can be easily readmitted. The higher number of procedures, outpatient, emergency and diagnoses mean the higher possibility to get readmitted. The use of insulin is also a crucial reason for readmitted. Moreover, diabetes has a positive influence on readmission. Besides, if a patient has already stayed a long time in the hospital, he or she has a greater probability of readmission.
+
+\newpage
 
 ## 5.2. Limitations
 
 Our model gives some guidance to predict the readmission. However, we have several limitations here in our model.
 
-- BIC is a good criteria to select variables. However, it may give too much penalty that leads a under-fit issue.
+- BIC is a good criterion to select variables. However, it may give too much penalty that leads to an under-fit issue.
 
-- No interaction terms are considered in our model (due to the large data set and computing time). We are not sure how this could affect our model. But we believe all these variables cannot be independent with each other. There should be some correlations underneath.
+- No interaction terms are considered in our model (due to the large data set and computing time). We are not sure how this could affect our model. But we believe all these variables cannot be independent of each other. There should be some correlations underneath.
 
-- The model is under linear assumption. We may consider to involve the smooth pattern (model GAM). However, it may make the model too complex.
+- The model is under the linear assumption. We may consider involving the smooth pattern (model GAM). However, it may make the model too complex.
 
-- There are some problems about stepwise selection method, so it is a meaningful future work on more efficient variable selection methods.
+- There are some problems with the stepwise selection method, so it is a meaningful future work on more efficient variable selection methods.
 
 (a)	It yields R-squared values that are badly biased to be high. 
 
@@ -492,7 +491,7 @@ Our model gives some guidance to predict the readmission. However, we have sever
 
 (c)	It yields p-values that do not have the proper meaning, and the proper correction for them is a difficult problem. 
 
-(d)	The stepwise selection allows us to think too much about statistical model but not the original problem.
+(d)	The stepwise selection allows us to think too much about the statistical model but not the original problem.
 
 \newpage
 
