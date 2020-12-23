@@ -273,6 +273,8 @@ acarbose $+$ insulin $+$ diabetesMed $+$ Length.of.Stay
 
 final formula $=$ readmitted $\sim(1 \mid$ patient $\mathrm{nbr})+$ race $+$ gender $+$ age $+$ num_procedures + number_outpatient + number_emergency $+$ number_diagnoses $+$ insulin $+$ diabetesMed $+$ Length.of.Stay
 
+\newpage
+
 ## 3.4.	Model Validation/ Dignostics
 
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
@@ -387,9 +389,7 @@ model3 = glmer(final_formula, data = train_set, family = binomial, nAGQ = 0)
 
 After selecting the variables, we need to check the following assumptions:
 
-\newpage
-
-(1) Normality of residuals (Figure 2); (QQ-plot)
+### (a) Normality of residuals (Figure 2); (QQ-plot)
 
 ```{r, echo=FALSE, fig.cap="Regession and Ratio Estimation Comparison", warning=FALSE, error = FALSE, message=FALSE, fig.width=8, fig.height=4, fig.align="center"}
 
@@ -404,7 +404,7 @@ From the QQ plot above, we can find most of the points are on the straight line,
 
 \newpage
 
-(2) Homoscedasticity (Figure 3); (Fitted Values v.s. Residuals)
+### (b) Homoscedasticity (Figure 3); (Fitted Values v.s. Residuals)
 
 From the figure below, we can find the points have some trends even if they are on the two sides around zero. Thus, it is not very confident to state the variance is constant, which also means there may not exist homoscedasticity.
 
@@ -477,21 +477,21 @@ The result shows that there are many causes for readmission. The first one is th
 
 Our model gives some guidance to predict the readmission. However, we have several limitations here in our model.
 
-- BIC is a good criterion to select variables. However, it may give too much penalty that leads to an under-fit issue.
+(1) BIC is a good criterion to select variables. However, it may give too much penalty that leads to an under-fit issue.
 
-- No interaction terms are considered in our model (due to the large data set and computing time). We are not sure how this could affect our model. But we believe all these variables cannot be independent of each other. There should be some correlations underneath.
+(2) No interaction terms are considered in our model (due to the large data set and computing time). We are not sure how this could affect our model. But we believe all these variables cannot be independent of each other. There should be some correlations underneath.
 
-- The model is under the linear assumption. We may consider involving the smooth pattern (model GAM). However, it may make the model too complex.
+(3) The model is under the linear assumption. We may consider involving the smooth pattern (model GAM). However, it may make the model too complex.
 
-- There are some problems with the stepwise selection method, so it is a meaningful future work on more efficient variable selection methods.
+(4) There are some problems with the stepwise selection method, so it is a meaningful future work on more efficient variable selection methods.
 
-(a)	It yields R-squared values that are badly biased to be high. 
+-	It yields R-squared values that are badly biased to be high. 
 
-(b)	It yields p-values that do not have the proper meaning, and the proper correction for them is a difficult problem. 
+-	It yields p-values that do not have the proper meaning, and the proper correction for them is a difficult problem. 
 
-(c)	It yields p-values that do not have the proper meaning, and the proper correction for them is a difficult problem. 
+-	It yields p-values that do not have the proper meaning, and the proper correction for them is a difficult problem. 
 
-(d)	The stepwise selection allows us to think too much about the statistical model but not the original problem.
+-	The stepwise selection allows us to think too much about the statistical model but not the original problem.
 
 \newpage
 
